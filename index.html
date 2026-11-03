@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#1f2a24" />
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
+  <title>Ouro Branco — Reforma do Fusca</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+  <header class="topbar">
+    <h1>Ouro Branco</h1>
+    <div class="user-info">Luciana & Thiago</div>
+  </header>
+
+  <main id="app">
+    
+    <!-- ========== TELA: INÍCIO ========== -->
+    <section id="tela-inicio" class="tela ativa">
+      <section class="card cenario-card" id="cenario-box">
+        <div class="ceu" id="ceu-box"></div>
+        <div class="pista-container">
+          <div class="pista-linha"></div>
+          <div class="carro-andando" id="carro-fusca">
+            <img src="fusca.png" alt="Fusca Ouro Branco">
+          </div>
+        </div>
+        <div class="progresso-info">
+          <h2>Progresso da Reforma</h2>
+          <div class="barra-fundo"><div class="barra-preenchida" id="barra-geral" style="width: 0%"></div></div>
+          <span class="texto-progresso" id="texto-progresso">0% concluído</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Progresso por Área</h2>
+        <div id="progresso-areas" class="areas-grid"></div>
+      </section>
+
+      <!-- Adicionar Item (Agora com preço) -->
+      <section class="card">
+        <h2>📦 Adicionar Peça / Serviço</h2>
+        <input type="text" id="item-nome" placeholder="Ex: Borracha do vidro, Pintura, Motor...">
+        <input type="number" id="item-preco" placeholder="Preço (R$)" step="0.01" min="0">
+        
+        <div class="select-group">
+          <select id="item-area">
+            <option value="Lataria">Lataria</option>
+            <option value="Pintura">Pintura</option>
+            <option value="Vidros">Vidros</option>
+            <option value="Rodas">Rodas</option>
+            <option value="Interior">Interior</option>
+            <option value="Eletrica">Elétrica</option>
+            <option value="Motor">Motor</option>
+          </select>
+          <select id="item-status">
+            <option value="A comprar">A comprar</option>
+            <option value="Comprado">Comprado</option>
+            <option value="Em andamento">Instalando</option>
+            <option value="Instalado">Instalado</option>
+          </select>
+        </div>
+        <button id="btn-add-item">Adicionar Item</button>
+      </section>
+
+      <section class="card">
+        <h2>📋 Lista de Itens</h2>
+        <div id="lista-itens"><p class="placeholder">Carregando...</p></div>
+      </section>
+    </section>
+
+    <!-- ========== TELA: ETAPAS ========== -->
+    <section id="tela-etapas" class="tela">
+      <section class="card">
+        <h2>🔧 Fases da Reforma</h2>
+        <p class="placeholder" style="margin-bottom: 15px;">Marque em qual fase geral vocês estão agora.</p>
+        <div id="lista-etapas"></div>
+      </section>
+    </section>
+
+    <!-- ========== TELA: FINANCEIRO ========== -->
+    <section id="tela-financeiro" class="tela">
+      <section class="card">
+        <h2>💰 Resumo Financeiro</h2>
+        <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 18px;">
+          <span>Total Gasto:</span>
+          <strong id="total-gasto" style="color: var(--success)">R$ 0,00</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 14px; color: var(--text-muted);">
+          <span>Itens comprados/instalados:</span>
+          <span id="qtd-comprados">0</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Histórico de Gastos</h2>
+        <div id="lista-gastos"></div>
+      </section>
+    </section>
+
+  </main>
+
+  <!-- MENU INFERIOR -->
+  <nav class="tabbar">
+    <button class="tab ativa" data-tela="inicio">🏠<span>Início</span></button>
+    <button class="tab" data-tela="etapas">🔧<span>Etapas</span></button>
+    <button class="tab" data-tela="financeiro">💰<span>Financeiro</span></button>
+  </nav>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+:root {
+  --bg: #12180f;
+  --card-bg: #1f2a24;
+  --border: #2c3a31;
+  --text: #e8e2d0;
+  --text-muted: #c9c1a8;
+  --accent: #d9a441;
+  --success: #27ae60;
+  --danger: #c0392b;
+  --info: #3498db;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+body { background: var(--bg); color: var(--text); padding-bottom: 40px; }
+
+.topbar { background: var(--card-bg); padding: 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+.topbar h1 { font-size: 20px; color: #fff; }
+.user-info { font-size: 12px; background: var(--border); padding: 4px 10px; border-radius: 12px; }
+
+#app { padding: 16px; max-width: 600px; margin: 0 auto; }
+
+.card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.card h2 { font-size: 16px; margin-bottom: 12px; color: #fff; }
+
+/* --- CENÁRIO DO CARRO --- */
+.cenario-card { position: relative; overflow: hidden; padding-top: 0; padding-bottom: 20px; background: var(--card-bg); }
+
+/* O Céu (Dia) - Gradiente Azul e Branco */
+.ceu { 
+  height: 100px; margin: 0 -16px 10px -16px; 
+  background: linear-gradient(to bottom, #87CEEB 0%, #ffffff 100%); 
+  position: relative; overflow: hidden;
+  transition: background 1s ease;
+}
+
+/* O Sol (Dia) */
+.ceu::before {
+  content: '☀️'; 
+  position: absolute; top: 15px; right: 20px; 
+  font-size: 32px; 
+  animation: girarSol 20s linear infinite;
+}
+
+/* O Céu (Noite) - Gradiente Escuro */
+.cenario-card.noite .ceu { 
+  background: linear-gradient(to bottom, #0f172a 0%, #1e1b4b 100%); 
+}
+
+/* A Estrela e a Lua (Noite) */
+.cenario-card.noite .ceu::before {
+  content: '✨'; font-size: 14px; top: 20px; left: 20px; animation: piscar 2s infinite; right: auto;
+}
+.cenario-card.noite .ceu::after {
+  content: '🌙'; font-size: 32px; top: 15px; right: 20px; position: absolute; animation: none;
+}
+
+/* Animações */
+@keyframes girarSol { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes piscar { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* Pista em movimento */
+.pista-container { 
+  position: relative; 
+  height: 70px; /* Aumentamos a altura da pista para o carro caber */
+  margin-bottom: 10px; 
+  overflow: hidden; 
+}
+.pista-linha { 
+  position: absolute; 
+  bottom: 5px; 
+  left: 0; 
+  width: 200%; 
+  height: 4px; 
+  background: repeating-linear-gradient(90deg, var(--text-muted) 0, var(--text-muted) 10px, transparent 10px, transparent 20px); 
+  opacity: 0.3;
+  animation: passandoPista 2s linear infinite;
+}
+@keyframes passandoPista { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+/* O CARRO (Movendo da Esquerda para a Direita) */
+.carro-andando {
+  position: absolute; 
+  bottom: 12px; /* Subimos o carro para ele ficar em cima da linha */
+  left: 0; 
+  width: 80px; /* Diminuímos um pouquinho o tamanho do carro */
+  transition: left 1s ease-out;
+  transform: translateX(-50%); 
+  z-index: 2;
+}
+.carro-andando img { 
+  width: 100%; 
+  height: auto; 
+  display: block; 
+  filter: drop-shadow(0px 8px 6px rgba(0,0,0,0.7)); 
+}
+
+/* Texto de Fusca Pronto! */
+.mensagem-pronto {
+  display: none; text-align: center; font-size: 18px; font-weight: bold; color: var(--success);
+  margin-top: 10px; animation: piscar 1.5s infinite;
+}
+.cenario-card.concluido .mensagem-pronto { display: block; }
+
+/* Barras de Progresso */
+.progresso-info { display: flex; flex-direction: column; gap: 6px; }
+.progresso-info h2 { margin: 0; }
+.barra-fundo { width: 100%; height: 10px; background: var(--bg); border-radius: 5px; overflow: hidden; }
+.barra-preenchida { height: 100%; background: var(--success); transition: width 0.5s; }
+.texto-progresso { font-size: 14px; font-weight: bold; color: var(--success); text-align: right; }
+
+.areas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.area-item { background: var(--bg); padding: 10px; border-radius: 8px; font-size: 12px; }
+.area-item .barra-fundo { height: 6px; margin-top: 6px; }
+.area-item .nome-area { display: flex; justify-content: space-between; margin-bottom: 4px; }
+
+/* Inputs e Lista */
+input, select, button { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: white; font-size: 16px; font-family: inherit; }
+.select-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+button { background: var(--accent); color: #000; font-weight: bold; border: none; cursor: pointer; transition: opacity 0.2s; }
+button:active { opacity: 0.8; }
+
+.item-linha { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); gap: 10px; }
+.item-linha:last-child { border-bottom: none; }
+.item-info { display: flex; flex-direction: column; flex: 1; }
+.item-nome { font-size: 14px; font-weight: 500; }
+.item-area { font-size: 11px; color: var(--text-muted); }
+.item-acoes { display: flex; align-items: center; gap: 8px; }
+
+.select-status { width: 120px; padding: 4px 8px; font-size: 12px; font-weight: bold; border-radius: 12px; border: none; cursor: pointer; text-align: center; }
+.status-a-comprar { background: var(--danger) !important; color: #fff !important; }
+.status-comprado { background: var(--accent) !important; color: #000 !important; }
+.status-em-andamento { background: var(--info) !important; color: #fff !important; }
+.status-instalado { background: var(--success) !important; color: #fff !important; }
+
+.btn-delete { background: none; border: none; color: var(--danger); font-size: 18px; cursor: pointer; padding: 4px; }
+.placeholder { text-align: center; color: var(--text-muted); font-size: 14px; }
+
+/* --- TELAS E NAVEGAÇÃO --- */
+.tela { display: none; }
+.tela.ativa { display: block; }
+
+.tabbar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex; justify-content: space-around;
+  background: var(--card-bg); border-top: 1px solid var(--border);
+  padding: 8px 0; z-index: 100;
+}
+.tab {
+  display: flex; flex-direction: column; align-items: center;
+  background: none; border: none; color: var(--text-muted);
+  font-size: 11px; cursor: pointer; flex: 1;
+}
+.tab.ativa { color: var(--accent); font-weight: bold; }
+.tab span { font-size: 10px; margin-top: 2px; }
+
+/* Ajuste para o menu não cobrir o conteúdo */
+body { padding-bottom: 80px; }
+
+/* --- ETAPAS --- */
+.etapa-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px; background: var(--bg); border-radius: 8px; margin-bottom: 8px;
+}
+.etapa-nome { font-weight: bold; }
+.btn-etapa {
+  padding: 6px 12px; border-radius: 12px; border: none; cursor: pointer;
+  font-size: 12px; font-weight: bold; width: auto; margin: 0;
+}
+.btn-etapa.concluida { background: var(--success); color: #fff; }
+.btn-etapa.pendente { background: var(--danger); color: #fff; }
+
+/* --- FINANCEIRO --- */
+.gasto-item {
+  display: flex; justify-content: space-between; padding: 10px 0;
+  border-bottom: 1px solid var(--border); font-size: 14px;
+}
+
+.btn-edit { 
+  background: none; 
+  border: none; 
+  color: var(--text); 
+  font-size: 16px; 
+  cursor: pointer; 
+  padding: 4px; 
+  transition: transform 0.2s;
+}
+.btn-edit:hover { transform: scale(1.1); }

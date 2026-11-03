@@ -1,0 +1,21 @@
+{
+  "name": "Ouro Branco - Reforma do Fusca",
+  "short_name": "Ouro Branco",
+  "description": "Acompanhamento da reforma do Fusca 1983",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#12180f",
+  "theme_color": "#1f2a24",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
