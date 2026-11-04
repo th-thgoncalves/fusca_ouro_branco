@@ -1,13 +1,14 @@
-const CACHE_NAME = 'ouro-branco-v1';
+const CACHE_NAME = 'ouro-branco-v2'; // Mudei para v2
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './app.js',
-  './manifest.json'
+  './manifest.json',
+  './icone-f.png',
+  './logolt.png'
 ];
 
-// Instala e guarda os arquivos no cache
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -16,7 +17,6 @@ self.addEventListener('install', (e) => {
   );
 });
 
-// Ativa e limpa caches antigos
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
@@ -27,7 +27,6 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-// Responde do cache se estiver offline
 self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.match(e.request).then((response) => {
