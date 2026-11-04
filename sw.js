@@ -5,7 +5,6 @@ const ASSETS = [
   './style.css',
   './app.js',
   './manifest.json',
-  './icone-f.png',
   './logolt.png'
 ];
 
