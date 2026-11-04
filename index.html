@@ -11,21 +11,21 @@
   <link rel="manifest" href="manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   
-  <!-- Ícones com Cache Busting (Força a atualização) -->
-  <link rel="icon" type="image/png" href="fusca0.png?v=2">
-  <link rel="apple-touch-icon" href="fusca0.png?v=2">
+  <!-- FORÇANDO A ATUALIZAÇÃO DO ÍCONE DA ABA E DO IPHONE -->
+  <!-- O "?v=3" força o navegador a baixar a imagem de novo -->
+  <link rel="icon" type="image/png" href="icone-f.png?v=3">
+  <link rel="apple-touch-icon" href="icone-f.png?v=3">
   
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="topbar">
-    <h1>Ouro Branco</h1>
-    <div class="user-info">Luciana & Thiago</div>
+    <h1>Fusca Ouro Branco</h1>
+    <div class="user-info">Por Luciana & Thiago</div>
   </header>
 
   <main id="app">
     
-    <!-- ========== TELA: INÍCIO ========== -->
     <section id="tela-inicio" class="tela ativa">
       <section class="card cenario-card" id="cenario-box">
         <div class="ceu" id="ceu-box"></div>
@@ -47,7 +47,6 @@
         <div id="progresso-areas" class="areas-grid"></div>
       </section>
 
-      <!-- Adicionar Item -->
       <section class="card">
         <h2>📦 Adicionar Peça / Serviço</h2>
         <input type="text" id="item-nome" placeholder="Ex: Borracha do vidro, Pintura, Motor...">
@@ -79,7 +78,6 @@
       </section>
     </section>
 
-    <!-- ========== TELA: ETAPAS ========== -->
     <section id="tela-etapas" class="tela">
       <section class="card">
         <h2>🔧 Fases da Reforma</h2>
@@ -88,7 +86,6 @@
       </section>
     </section>
 
-    <!-- ========== TELA: FINANCEIRO ========== -->
     <section id="tela-financeiro" class="tela">
       <section class="card">
         <h2>💰 Resumo Financeiro</h2>
@@ -110,14 +107,12 @@
 
   </main>
 
-  <!-- MENU INFERIOR -->
   <nav class="tabbar">
     <button class="tab ativa" data-tela="inicio">🏠<span>Início</span></button>
     <button class="tab" data-tela="etapas">🔧<span>Etapas</span></button>
     <button class="tab" data-tela="financeiro">💰<span>Financeiro</span></button>
   </nav>
 
-  <!-- Script do PWA -->
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js');
