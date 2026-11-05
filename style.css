@@ -12,9 +12,27 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 
-body { background: var(--bg); color: var(--text); padding-bottom: 40px; }
+body { 
+  background: var(--bg); 
+  color: var(--text); 
+  padding-bottom: 80px; 
+  /* Garante que o conteúdo não fique atrás do notch */
+  padding-top: env(safe-area-inset-top); 
+}
 
-.topbar { background: var(--card-bg); padding: 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+.topbar { 
+  background: var(--card-bg); 
+  padding: 16px; 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  border-bottom: 1px solid var(--border); 
+  position: sticky; 
+  top: 0; 
+  z-index: 10; 
+  /* Adiciona espaço no topo para o notch do iPhone */
+  padding-top: calc(16px + env(safe-area-inset-top)); 
+}
 .topbar h1 { font-size: 20px; color: #fff; }
 .user-info { font-size: 12px; background: var(--border); padding: 4px 10px; border-radius: 12px; }
 
