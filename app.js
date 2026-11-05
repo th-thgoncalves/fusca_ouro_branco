@@ -9,6 +9,14 @@ const areas = ['Lataria', 'Pintura', 'Vidros', 'Rodas', 'Interior', 'Eletrica', 
 const etapasFixas = ['Lixamento e Preparação', 'Pintura', 'Mecânica', 'Elétrica', 'Instalação de Vidros', 'Forração e Bancos'];
 let itensGlobais = [];
 let etapasGlobais = [];
+let fotosGlobais = [];
+
+// Variáveis da Galeria
+const fotoInput = document.getElementById('foto-input');
+const btnEscolherFoto = document.getElementById('btn-escolher-foto');
+const previewContainer = document.getElementById('preview-container');
+const previewImagem = document.getElementById('preview-imagem');
+let base64Temporaria = null;
 
 // --- NAVEGAÇÃO DE TELAS ---
 document.querySelectorAll('.tab').forEach(btn => {
@@ -47,7 +55,7 @@ async function mudarStatus(id, novoStatus) {
   await supabase.from('itens').update({ status: novoStatus }).eq('id', id);
 }
 
-// --- RENDERIZAÇÃO ---
+// --- RENDERIZAÇÃO DE ITENS E FINANCEIRO ---
 function renderizarTela() {
   renderItens();
   renderFinanceiro();
@@ -94,17 +102,14 @@ function renderItens() {
     listaItens.appendChild(div);
   });
 
-  // Eventos de mudar status
   document.querySelectorAll('.select-status').forEach(select => {
     select.addEventListener('change', (e) => mudarStatus(e.target.getAttribute('data-id'), e.target.value));
   });
   
-  // Eventos de deletar
   document.querySelectorAll('.btn-delete').forEach(btn => {
     btn.addEventListener('click', (e) => deletarItem(e.target.getAttribute('data-id')));
   });
 
-  // Eventos de EDITAR
   document.querySelectorAll('.btn-edit').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const id = e.currentTarget.getAttribute('data-id');
@@ -114,10 +119,9 @@ function renderItens() {
   });
 }
 
-// NOVA FUNÇÃO PARA EDITAR O ITEM
 async function editarItem(id, nomeAtual, precoAtual) {
   const novoNome = prompt("Edite o nome do item:", nomeAtual);
-  if (novoNome === null) return; // Se o usuário cancelar
+  if (novoNome === null) return;
 
   const novoPrecoStr = prompt("Edite o preço (use ponto em vez de vírgula, ex: 150.50):", precoAtual);
   if (novoPrecoStr === null) return;
@@ -139,7 +143,6 @@ function renderFinanceiro() {
   listaGastos.innerHTML = '';
 
   itensGlobais.forEach(item => {
-    // Só conta como gasto se já foi comprado ou além
     if (item.status !== 'A comprar') {
       totalGasto += Number(item.preco) || 0;
       qtdComprados++;
@@ -215,7 +218,6 @@ function renderEtapas() {
   });
 }
 
-// Função global para o botão de etapa funcionar no HTML
 window.mudarEtapa = async (id, novoStatus) => {
   await supabase.from('etapas').update({ status: novoStatus }).eq('id', id);
 };
@@ -228,27 +230,82 @@ function verificarHorario() {
   else cenario.classList.remove('noite');
 }
 
-// --- INICIALIZAÇÃO E TEMPO REAL ---
-async function inicializar() {
-  // 1. Criar etapas se não existirem
-  const { data: checkEtapas } = await supabase.from('etapas').select('id').limit(1);
-  if (checkEtapas.length === 0) {
-    const novasEtapas = etapasFixas.map(nome => ({ nome, status: 'Pendente' }));
-    await supabase.from('etapas').insert(novasEtapas);
+// --- LÓGICA DA GALERIA ---
+btnEscolherFoto.addEventListener('click', () => fotoInput.click());
+
+fotoInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX_WIDTH = 800;
+      const scale = MAX_WIDTH / img.width;
+      canvas.width = MAX_WIDTH;
+      canvas.height = img.height * scale;
+      
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      
+      base64Temporaria = canvas.toDataURL('image/jpeg', 0.7);
+      
+      previewImagem.src = base64Temporaria;
+      previewContainer.style.display = 'block';
+      btnEscolherFoto.style.display = 'none';
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('btn-salvar-foto').addEventListener('click', async () => {
+  const legenda = document.getElementById('foto-legenda').value;
+  if (!base64Temporaria) return;
+
+  const { error } = await supabase.from('fotos').insert([{ base64: base64Temporaria, legenda: legenda }]);
+  
+  if (error) {
+    alert('Erro ao salvar foto: ' + error.message);
+  } else {
+    base64Temporaria = null;
+    previewContainer.style.display = 'none';
+    btnEscolherFoto.style.display = 'block';
+    document.getElementById('foto-legenda').value = '';
+    fotoInput.value = '';
+  }
+});
+
+function renderGaleria() {
+  const lista = document.getElementById('lista-fotos');
+  lista.innerHTML = '';
+
+  if (fotosGlobais.length === 0) {
+    lista.innerHTML = '<p class="placeholder" style="grid-column: span 2;">Nenhuma foto adicionada ainda.</p>';
+    return;
   }
 
-  // 2. Carregar dados
-  carregarDados();
-  verificarHorario();
-  setInterval(verificarHorario, 60000); 
-
-  // 3. Escutar mudanças no banco em tempo real
-  supabase.channel('realtime-fusca')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'itens' }, () => carregarDados())
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'etapas' }, () => carregarEtapas())
-    .subscribe();
+  fotosGlobais.forEach(foto => {
+    const div = document.createElement('div');
+    div.className = 'foto-item';
+    div.style.backgroundImage = `url(${foto.base64})`;
+    
+    if (foto.legenda) {
+      div.innerHTML = `<div class="legenda">${foto.legenda}</div>`;
+    }
+    lista.appendChild(div);
+  });
 }
 
+async function carregarFotos() {
+  const { data } = await supabase.from('fotos').select('*').order('id', { ascending: false });
+  fotosGlobais = data || [];
+  renderGaleria();
+}
+
+// --- FUNÇÕES DE CARREGAMENTO INICIAL ---
 async function carregarDados() {
   const { data } = await supabase.from('itens').select('*').order('id', { ascending: false });
   itensGlobais = data || [];
@@ -261,4 +318,29 @@ async function carregarEtapas() {
   renderEtapas();
 }
 
+// --- INICIALIZAÇÃO E TEMPO REAL (Única) ---
+async function inicializar() {
+  // Cria as etapas se o banco estiver vazio
+  const { data: checkEtapas } = await supabase.from('etapas').select('id').limit(1);
+  if (checkEtapas.length === 0) {
+    const novasEtapas = etapasFixas.map(nome => ({ nome, status: 'Pendente' }));
+    await supabase.from('etapas').insert(novasEtapas);
+  }
+
+  // Carrega tudo
+  carregarDados();
+  carregarEtapas();
+  carregarFotos();
+  verificarHorario();
+  setInterval(verificarHorario, 60000); 
+
+  // Escuta o tempo real do Supabase
+  supabase.channel('realtime-fusca')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'itens' }, () => carregarDados())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'etapas' }, () => carregarEtapas())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'fotos' }, () => carregarFotos())
+    .subscribe();
+}
+
+// Start!
 inicializar();
