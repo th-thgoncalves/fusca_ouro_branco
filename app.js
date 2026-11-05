@@ -278,6 +278,7 @@ document.getElementById('btn-salvar-foto').addEventListener('click', async () =>
   }
 });
 
+// Renderizar as fotos na tela
 function renderGaleria() {
   const lista = document.getElementById('lista-fotos');
   lista.innerHTML = '';
@@ -292,12 +293,77 @@ function renderGaleria() {
     div.className = 'foto-item';
     div.style.backgroundImage = `url(${foto.base64})`;
     
-    if (foto.legenda) {
-      div.innerHTML = `<div class="legenda">${foto.legenda}</div>`;
-    }
+    // Adiciona os botões de ação (Compartilhar e Excluir)
+    div.innerHTML = `
+      <div class="foto-acoes">
+        <button class="btn-foto-acao btn-share" onclick="compartilharFoto(${foto.id})">🔗</button>
+        <button class="btn-foto-acao btn-delete-foto" onclick="excluirFoto(${foto.id})">🗑️</button>
+      </div>
+      ${foto.legenda ? `<div class="legenda">${foto.legenda}</div>` : ''}
+    `;
+    
+    // Ao clicar na foto (fora dos botões), abre em tela cheia
+    div.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('btn-foto-acao')) {
+        abrirModalFoto(foto.base64, foto.legenda);
+      }
+    });
+
     lista.appendChild(div);
   });
 }
+
+// Função para abrir a foto em tela cheia
+function abrirModalFoto(base64, legenda) {
+  let modal = document.getElementById('modal-foto');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'modal-foto';
+    modal.className = 'modal-foto';
+    modal.innerHTML = `
+      <button class="btn-fechar-modal" onclick="document.getElementById('modal-foto').classList.remove('ativa')">×</button>
+      <img id="modal-imagem" src="">
+      <p id="modal-legenda"></p>
+    `;
+    document.body.appendChild(modal);
+  }
+
+  document.getElementById('modal-imagem').src = base64;
+  document.getElementById('modal-legenda').textContent = legenda || '';
+  modal.classList.add('ativa');
+}
+
+// Função para excluir a foto
+window.excluirFoto = async (id) => {
+  if (!confirm('Tem certeza que deseja excluir esta foto?')) return;
+  const { error } = await supabase.from('fotos').delete().eq('id', id);
+  if (error) alert('Erro ao excluir: ' + error.message);
+};
+
+// Função para compartilhar a foto
+window.compartilharFoto = async (id) => {
+  const foto = fotosGlobais.find(f => f.id === id);
+  if (!foto) return;
+
+  try {
+    const response = await fetch(foto.base64);
+    const blob = await response.blob();
+    const file = new File([blob], 'fusca.jpg', { type: 'image/jpeg' });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: 'Ouro Branco',
+        text: foto.legenda || 'Reforma do Fusca'
+      });
+    } else {
+      alert('O compartilhamento não é suportado neste dispositivo ou navegador.');
+    }
+  } catch (error) {
+    console.error('Erro ao compartilhar:', error);
+    alert('Não foi possível compartilhar a foto.');
+  }
+};
 
 async function carregarFotos() {
   const { data } = await supabase.from('fotos').select('*').order('id', { ascending: false });
@@ -318,23 +384,20 @@ async function carregarEtapas() {
   renderEtapas();
 }
 
-// --- INICIALIZAÇÃO E TEMPO REAL (Única) ---
+// --- INICIALIZAÇÃO E TEMPO REAL ---
 async function inicializar() {
-  // Cria as etapas se o banco estiver vazio
   const { data: checkEtapas } = await supabase.from('etapas').select('id').limit(1);
   if (checkEtapas.length === 0) {
     const novasEtapas = etapasFixas.map(nome => ({ nome, status: 'Pendente' }));
     await supabase.from('etapas').insert(novasEtapas);
   }
 
-  // Carrega tudo
   carregarDados();
   carregarEtapas();
   carregarFotos();
   verificarHorario();
   setInterval(verificarHorario, 60000); 
 
-  // Escuta o tempo real do Supabase
   supabase.channel('realtime-fusca')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'itens' }, () => carregarDados())
     .on('postgres_changes', { event: '*', schema: 'public', table: 'etapas' }, () => carregarEtapas())
