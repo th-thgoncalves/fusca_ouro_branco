@@ -204,3 +204,24 @@ body { padding-bottom: 80px; }
   transition: transform 0.2s;
 }
 .btn-edit:hover { transform: scale(1.1); }
+
+/* --- GALERIA --- */
+.foto-item {
+  position: relative;
+  width: 100%;
+  padding-top: 100%; /* Deixa o quadrado perfeito */
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.foto-item .legenda {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  padding: 6px;
+  font-size: 11px;
+  text-align: center;
+}
