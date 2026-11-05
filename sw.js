@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ouro-branco-v3'; // Mudei para v2
+const CACHE_NAME = 'ouro-branco-v3'; // Mudei para v3
 const ASSETS = [
   './',
   './index.html',
