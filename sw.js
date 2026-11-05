@@ -7,6 +7,7 @@ const ASSETS = [
   './manifest.json',
   './logo-192.png',
   './favicon-32x32.png',
+  './icone-fusca.png',
   './logolt.png'
 ];
 
