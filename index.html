@@ -10,16 +10,13 @@
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#2C4E4A" />
   
-  <!-- O SEGREDO DO IPHONE ESTÁ AQUI -->
-  <link rel="apple-touch-icon" href="favicon-32x32.png" />
+  <link rel="apple-touch-icon" href="logo-192.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Fusca Ouro Branco" />
+  <meta name="apple-mobile-web-app-title" content="Ouro Branco" />
 
-  <!-- Ícone da aba do PC (Logo L&T) -->
   <link rel="icon" href="logo-192.png?v=5">
   
-  <!-- Fontes do Google (Opcional, mas deixa o visual mais bonito como no Financeiro) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -113,12 +110,35 @@
       </section>
     </section>
 
+    <!-- NOVA TELA: GALERIA -->
+    <section id="tela-galeria" class="tela">
+      <section class="card">
+        <h2>📸 Galeria de Fotos</h2>
+        <p class="placeholder" style="margin-bottom: 15px;">Registre a evolução do Ouro Branco!</p>
+        
+        <input type="file" id="foto-input" accept="image/*" style="display: none;">
+        <button id="btn-escolher-foto" style="background: var(--info); color: white; margin-bottom: 15px;">Tirar ou Escolher Foto</button>
+        
+        <div id="preview-container" style="display: none; margin-bottom: 15px;">
+          <img id="preview-imagem" style="width: 100%; border-radius: 8px; margin-bottom: 10px;">
+          <input type="text" id="foto-legenda" placeholder="Legenda (ex: Antes da pintura)">
+          <button id="btn-salvar-foto">Salvar na Galeria</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Fotos Salvas</h2>
+        <div id="lista-fotos" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
+      </section>
+    </section>
+
   </main>
 
   <nav class="tabbar">
     <button class="tab ativa" data-tela="inicio">🏠<span>Início</span></button>
     <button class="tab" data-tela="etapas">🔧<span>Etapas</span></button>
     <button class="tab" data-tela="financeiro">💰<span>Financeiro</span></button>
+    <button class="tab" data-tela="galeria">📸<span>Galeria</span></button>
   </nav>
 
   <script>
