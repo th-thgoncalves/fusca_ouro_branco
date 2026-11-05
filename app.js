@@ -10,12 +10,6 @@ const etapasFixas = ['Lixamento e Preparação', 'Pintura', 'Mecânica', 'Elétr
 let itensGlobais = [];
 let etapasGlobais = [];
 let fotosGlobais = [];
-
-// Variáveis da Galeria
-const fotoInput = document.getElementById('foto-input');
-const btnEscolherFoto = document.getElementById('btn-escolher-foto');
-const previewContainer = document.getElementById('preview-container');
-const previewImagem = document.getElementById('preview-imagem');
 let base64Temporaria = null;
 
 // --- NAVEGAÇÃO DE TELAS ---
@@ -231,54 +225,60 @@ function verificarHorario() {
 }
 
 // --- LÓGICA DA GALERIA ---
-btnEscolherFoto.addEventListener('click', () => fotoInput.click());
+function configurarGaleria() {
+  const fotoInput = document.getElementById('foto-input');
+  const btnEscolherFoto = document.getElementById('btn-escolher-foto');
+  const previewContainer = document.getElementById('preview-container');
+  const previewImagem = document.getElementById('preview-imagem');
 
-fotoInput.addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+  btnEscolherFoto.addEventListener('click', () => fotoInput.click());
 
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const MAX_WIDTH = 800;
-      const scale = MAX_WIDTH / img.width;
-      canvas.width = MAX_WIDTH;
-      canvas.height = img.height * scale;
-      
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      
-      base64Temporaria = canvas.toDataURL('image/jpeg', 0.7);
-      
-      previewImagem.src = base64Temporaria;
-      previewContainer.style.display = 'block';
-      btnEscolherFoto.style.display = 'none';
+  fotoInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 800;
+        const scale = MAX_WIDTH / img.width;
+        canvas.width = MAX_WIDTH;
+        canvas.height = img.height * scale;
+        
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        
+        base64Temporaria = canvas.toDataURL('image/jpeg', 0.7);
+        
+        previewImagem.src = base64Temporaria;
+        previewContainer.style.display = 'block';
+        btnEscolherFoto.style.display = 'none';
+      };
+      img.src = event.target.result;
     };
-    img.src = event.target.result;
-  };
-  reader.readAsDataURL(file);
-});
+    reader.readAsDataURL(file);
+  });
 
-document.getElementById('btn-salvar-foto').addEventListener('click', async () => {
-  const legenda = document.getElementById('foto-legenda').value;
-  if (!base64Temporaria) return;
+  document.getElementById('btn-salvar-foto').addEventListener('click', async () => {
+    const legenda = document.getElementById('foto-legenda').value;
+    if (!base64Temporaria) return;
 
-  const { error } = await supabase.from('fotos').insert([{ base64: base64Temporaria, legenda: legenda }]);
-  
-  if (error) {
-    alert('Erro ao salvar foto: ' + error.message);
-  } else {
-    base64Temporaria = null;
-    previewContainer.style.display = 'none';
-    btnEscolherFoto.style.display = 'block';
-    document.getElementById('foto-legenda').value = '';
-    fotoInput.value = '';
-  }
-});
+    const { error } = await supabase.from('fotos').insert([{ base64: base64Temporaria, legenda: legenda }]);
+    
+    if (error) {
+      alert('Erro ao salvar foto: ' + error.message);
+    } else {
+      base64Temporaria = null;
+      previewContainer.style.display = 'none';
+      btnEscolherFoto.style.display = 'block';
+      document.getElementById('foto-legenda').value = '';
+      fotoInput.value = '';
+    }
+  });
+}
 
-// Renderizar as fotos na tela
 function renderGaleria() {
   const lista = document.getElementById('lista-fotos');
   lista.innerHTML = '';
@@ -293,7 +293,6 @@ function renderGaleria() {
     div.className = 'foto-item';
     div.style.backgroundImage = `url(${foto.base64})`;
     
-    // Adiciona os botões de ação (Compartilhar e Excluir)
     div.innerHTML = `
       <div class="foto-acoes">
         <button class="btn-foto-acao btn-share" onclick="compartilharFoto(${foto.id})">🔗</button>
@@ -302,7 +301,6 @@ function renderGaleria() {
       ${foto.legenda ? `<div class="legenda">${foto.legenda}</div>` : ''}
     `;
     
-    // Ao clicar na foto (fora dos botões), abre em tela cheia
     div.addEventListener('click', (e) => {
       if (!e.target.classList.contains('btn-foto-acao')) {
         abrirModalFoto(foto.base64, foto.legenda);
@@ -313,7 +311,6 @@ function renderGaleria() {
   });
 }
 
-// Função para abrir a foto em tela cheia
 function abrirModalFoto(base64, legenda) {
   let modal = document.getElementById('modal-foto');
   if (!modal) {
@@ -333,14 +330,12 @@ function abrirModalFoto(base64, legenda) {
   modal.classList.add('ativa');
 }
 
-// Função para excluir a foto
 window.excluirFoto = async (id) => {
   if (!confirm('Tem certeza que deseja excluir esta foto?')) return;
   const { error } = await supabase.from('fotos').delete().eq('id', id);
   if (error) alert('Erro ao excluir: ' + error.message);
 };
 
-// Função para compartilhar a foto
 window.compartilharFoto = async (id) => {
   const foto = fotosGlobais.find(f => f.id === id);
   if (!foto) return;
@@ -386,6 +381,8 @@ async function carregarEtapas() {
 
 // --- INICIALIZAÇÃO E TEMPO REAL ---
 async function inicializar() {
+  configurarGaleria(); // Configura os botões da galeria
+
   const { data: checkEtapas } = await supabase.from('etapas').select('id').limit(1);
   if (checkEtapas.length === 0) {
     const novasEtapas = etapasFixas.map(nome => ({ nome, status: 'Pendente' }));
