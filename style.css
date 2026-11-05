@@ -225,3 +225,64 @@ body { padding-bottom: 80px; }
   font-size: 11px;
   text-align: center;
 }
+
+/* Botões dentro da foto na Galeria */
+.foto-acoes {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: flex;
+  gap: 5px;
+  z-index: 5;
+}
+.btn-foto-acao {
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: white;
+  font-size: 14px;
+  padding: 6px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+}
+.btn-foto-acao:active { background: rgba(0, 0, 0, 0.9); }
+
+/* Modal de visualização em tela cheia */
+.modal-foto {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 20px;
+}
+.modal-foto.ativa { display: flex; }
+.modal-foto img {
+  max-width: 100%;
+  max-height: 80vh;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+.modal-foto p {
+  color: white;
+  margin-top: 15px;
+  font-size: 16px;
+}
+.btn-fechar-modal {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 32px;
+  cursor: pointer;
+  width: auto;
+}
