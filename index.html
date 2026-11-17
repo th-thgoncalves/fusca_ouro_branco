@@ -111,26 +111,29 @@
     </section>
 
     <!-- NOVA TELA: GALERIA -->
-    <section id="tela-galeria" class="tela">
-      <section class="card">
-        <h2>📸 Galeria de Fotos</h2>
-        <p class="placeholder" style="margin-bottom: 15px;">Registre a evolução do Ouro Branco!</p>
-        
-        <input type="file" id="foto-input" accept="image/*" style="display: none;">
-        <button id="btn-escolher-foto" style="background: var(--info); color: white; margin-bottom: 15px;">Tirar ou Escolher Foto</button>
-        
-        <div id="preview-container" style="display: none; margin-bottom: 15px;">
-          <img id="preview-imagem" style="width: 100%; border-radius: 8px; margin-bottom: 10px;">
-          <input type="text" id="foto-legenda" placeholder="Legenda (ex: Antes da pintura)">
-          <button id="btn-salvar-foto">Salvar na Galeria</button>
-        </div>
-      </section>
+    <!-- NOVA TELA: GALERIA -->
+<section id="tela-galeria" class="tela">
+  <section class="card">
+    <h2>📸 Galeria de Fotos</h2>
+    <p class="placeholder" style="margin-bottom: 15px;">Registre a evolução do Ouro Branco!</p>
+    
+    <input type="file" id="foto-input" accept="image/*" multiple style="display: none;">
+    <button id="btn-escolher-foto" style="background: var(--info); color: white; margin-bottom: 15px;">Tirar ou Escolher Fotos</button>
+    
+    <div id="preview-container" style="display: none; margin-bottom: 15px;">
+      <div id="preview-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;"></div>
+      <p id="preview-contador" class="placeholder" style="margin-bottom: 10px;"></p>
+      <input type="text" id="foto-legenda" placeholder="Legenda (aplicada a todas as fotos deste envio)">
+      <button id="btn-salvar-foto">Salvar na Galeria</button>
+      <button id="btn-cancelar-fotos" style="background: var(--danger); color: white;">Cancelar</button>
+    </div>
+  </section>
 
-      <section class="card">
-        <h2>Fotos Salvas</h2>
-        <div id="lista-fotos" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
-      </section>
-    </section>
+  <section class="card">
+    <h2>Fotos Salvas</h2>
+    <div id="lista-fotos" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
+  </section>
+</section>
 
   </main>
 
