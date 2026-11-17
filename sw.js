@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ouro-branco-v99'; // Mude para v99
+const CACHE_NAME = 'ouro-branco-v100'; // Mude para v99
 const ASSETS = [
   './',
   './index.html',
