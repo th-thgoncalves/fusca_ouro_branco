@@ -225,57 +225,137 @@ function verificarHorario() {
 }
 
 // --- LÓGICA DA GALERIA ---
+// --- LÓGICA DA GALERIA (MÚLTIPLAS FOTOS) ---
+let base64Temporarias = []; // array de base64 pendentes de salvar
+
 function configurarGaleria() {
   const fotoInput = document.getElementById('foto-input');
   const btnEscolherFoto = document.getElementById('btn-escolher-foto');
   const previewContainer = document.getElementById('preview-container');
-  const previewImagem = document.getElementById('preview-imagem');
+  const previewGrid = document.getElementById('preview-grid');
+  const previewContador = document.getElementById('preview-contador');
+  const btnSalvar = document.getElementById('btn-salvar-foto');
+  const btnCancelar = document.getElementById('btn-cancelar-fotos');
 
   btnEscolherFoto.addEventListener('click', () => fotoInput.click());
 
-  fotoInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 800;
-        const scale = MAX_WIDTH / img.width;
-        canvas.width = MAX_WIDTH;
-        canvas.height = img.height * scale;
-        
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        
-        base64Temporaria = canvas.toDataURL('image/jpeg', 0.7);
-        
-        previewImagem.src = base64Temporaria;
-        previewContainer.style.display = 'block';
-        btnEscolherFoto.style.display = 'none';
+  // Redimensiona UM arquivo e devolve base64 (Promise)
+  function processarArquivo(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 800;
+          const scale = Math.min(1, MAX_WIDTH / img.width);
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', 0.7));
+        };
+        img.onerror = reject;
+        img.src = event.target.result;
       };
-      img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
 
-  document.getElementById('btn-salvar-foto').addEventListener('click', async () => {
-    const legenda = document.getElementById('foto-legenda').value;
-    if (!base64Temporaria) return;
-
-    const { error } = await supabase.from('fotos').insert([{ base64: base64Temporaria, legenda: legenda }]);
-    
-    if (error) {
-      alert('Erro ao salvar foto: ' + error.message);
-    } else {
-      base64Temporaria = null;
+  function atualizarPreview() {
+    previewGrid.innerHTML = '';
+    if (base64Temporarias.length === 0) {
       previewContainer.style.display = 'none';
       btnEscolherFoto.style.display = 'block';
-      document.getElementById('foto-legenda').value = '';
-      fotoInput.value = '';
+      return;
     }
+    previewContainer.style.display = 'block';
+    btnEscolherFoto.style.display = 'none';
+
+    base64Temporarias.forEach((b64, idx) => {
+      const wrap = document.createElement('div');
+      wrap.style.position = 'relative';
+
+      const img = document.createElement('img');
+      img.src = b64;
+      img.style.width = '100%';
+      img.style.borderRadius = '6px';
+      img.style.display = 'block';
+
+      const btnX = document.createElement('button');
+      btnX.textContent = '×';
+      btnX.style.cssText = `
+        position:absolute; top:2px; right:2px; width:22px; height:22px;
+        padding:0; margin:0; border-radius:50%; background:rgba(0,0,0,0.7);
+        color:#fff; font-size:14px; line-height:1; cursor:pointer; border:none;
+      `;
+      btnX.addEventListener('click', () => {
+        base64Temporarias.splice(idx, 1);
+        atualizarPreview();
+      });
+
+      wrap.appendChild(img);
+      wrap.appendChild(btnX);
+      previewGrid.appendChild(wrap);
+    });
+
+    previewContador.textContent = `${base64Temporarias.length} foto(s) pronta(s) para salvar`;
+  }
+
+  fotoInput.addEventListener('change', async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    btnEscolherFoto.textContent = 'Processando...';
+    btnEscolherFoto.disabled = true;
+
+    try {
+      for (const file of files) {
+        try {
+          const b64 = await processarArquivo(file);
+          base64Temporarias.push(b64);
+        } catch (err) {
+          console.error('Falha ao processar arquivo:', file.name, err);
+        }
+      }
+      atualizarPreview();
+    } finally {
+      btnEscolherFoto.textContent = 'Tirar ou Escolher Fotos';
+      btnEscolherFoto.disabled = false;
+      fotoInput.value = ''; // permite reescolher os mesmos arquivos
+    }
+  });
+
+  btnSalvar.addEventListener('click', async () => {
+    if (base64Temporarias.length === 0) return;
+
+    const legenda = document.getElementById('foto-legenda').value;
+    const registros = base64Temporarias.map(b64 => ({ base64: b64, legenda }));
+
+    btnSalvar.disabled = true;
+    btnSalvar.textContent = 'Salvando...';
+
+    const { error } = await supabase.from('fotos').insert(registros);
+
+    btnSalvar.disabled = false;
+    btnSalvar.textContent = 'Salvar na Galeria';
+
+    if (error) {
+      alert('Erro ao salvar fotos: ' + error.message);
+    } else {
+      base64Temporarias = [];
+      atualizarPreview();
+      document.getElementById('foto-legenda').value = '';
+    }
+  });
+
+  btnCancelar.addEventListener('click', () => {
+    if (!confirm('Descartar todas as fotos selecionadas?')) return;
+    base64Temporarias = [];
+    atualizarPreview();
+    document.getElementById('foto-legenda').value = '';
+    fotoInput.value = '';
   });
 }
 
